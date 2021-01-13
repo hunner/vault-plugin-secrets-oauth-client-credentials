@@ -54,6 +54,7 @@ func TestTokenRead(t *testing.T) {
 			case "client_credentials":
 				assert.Equal(t, "client_credentials", data.Get("grant_type"))
 				assert.True(t, strings.HasPrefix(data.Get("scope"), "a b c"))
+				assert.Equal(t, "https://localhost/api/v2/", data.Get("audience"))
 
 				expiresIn := 5
 				if i > 1 {
@@ -86,6 +87,9 @@ func TestTokenRead(t *testing.T) {
 			"client_secret": "bar",
 			"token_url":     "http://localhost/token",
 			"scopes":        "a,b,c",
+			"endpoint_params": url.Values{
+				"audience": {"https://localhost/api/v2/"},
+			},
 		},
 	}
 

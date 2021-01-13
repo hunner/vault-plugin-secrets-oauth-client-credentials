@@ -9,10 +9,11 @@ import (
 )
 
 type config struct {
-	ClientID     string   `json:"client_id"`
-	ClientSecret string   `json:"client_secret"`
-	TokenURL     string   `json:"token_url"`
-	Scopes       []string `json:"scopes"`
+	ClientID       string              `json:"client_id"`
+	ClientSecret   string              `json:"client_secret"`
+	TokenURL       string              `json:"token_url"`
+	Scopes         []string            `json:"scopes"`
+	EndpointParams map[string][]string `json:"endpoint_params"`
 }
 
 func getConfig(ctx context.Context, storage logical.Storage) (*config, error) {
@@ -41,9 +42,10 @@ func (b *backend) configReadOperation(ctx context.Context, req *logical.Request,
 
 	resp := &logical.Response{
 		Data: map[string]interface{}{
-			"client_id": c.ClientID,
-			"token_url": c.TokenURL,
-			"scopes":    c.Scopes,
+			"client_id":       c.ClientID,
+			"token_url":       c.TokenURL,
+			"scopes":          c.Scopes,
+			"endpoint_params": c.EndpointParams,
 		},
 	}
 	return resp, nil
@@ -74,6 +76,13 @@ func (b *backend) configUpdateOperation(ctx context.Context, req *logical.Reques
 	scopes, ok := data.GetOk("scopes")
 	if ok {
 		c.Scopes = scopes.([]string)
+	}
+	endpointParams, ok := data.GetOk("endpoint_params")
+	if ok {
+		c.EndpointParams = make(map[string][]string)
+		for k, v := range endpointParams.(map[string]interface{}) {
+			c.EndpointParams[k] = v.([]string)
+		}
 	}
 
 	entry, err := logical.StorageEntryJSON(configPath, c)
@@ -116,6 +125,10 @@ var configFields = map[string]*framework.FieldSchema{
 	"scopes": {
 		Type:        framework.TypeCommaStringSlice,
 		Description: "Comma separated list of default scopes for the token.",
+	},
+	"endpoint_params": {
+		Type:        framework.TypeMap,
+		Description: "Specifies additional parameters for requests to the token endpoint.",
 	},
 }
 

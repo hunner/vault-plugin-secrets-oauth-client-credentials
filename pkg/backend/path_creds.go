@@ -43,10 +43,11 @@ func (b *backend) getToken(ctx context.Context, storage logical.Storage, c *conf
 	// Generate new token
 	if tok == nil || !tok.Valid() {
 		config := &clientcredentials.Config{
-			ClientID:     c.ClientID,
-			ClientSecret: c.ClientSecret,
-			TokenURL:     c.TokenURL,
-			Scopes:       c.Scopes,
+			ClientID:       c.ClientID,
+			ClientSecret:   c.ClientSecret,
+			TokenURL:       c.TokenURL,
+			Scopes:         c.Scopes,
+			EndpointParams: c.EndpointParams,
 		}
 
 		// Override default scopes if provided
